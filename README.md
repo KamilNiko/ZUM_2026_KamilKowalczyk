@@ -99,7 +99,7 @@ Uzupełniaj sekcje w zadaniach podanych w nawiasach. Zastępuj teksty w nawiasac
 ## Informacje ogólne
 
 * Tytuł: [tytuł projektu]
-* Autor: [imię i nazwisko]
+* Autor: Kamil Kowalczyk
 * Modalność: [tekst, obraz, audio albo dane multimodalne]
 * Problem klasyfikacji: [co jest klasą, ile jest klas]
 
