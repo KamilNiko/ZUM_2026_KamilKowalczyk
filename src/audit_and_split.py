@@ -1,7 +1,7 @@
 """Audyt danych i zapis podziału PolEmo 2.0 (wariant all_text) — Zadanie 1.
 
 Uruchomienie (z dowolnego katalogu):
-    .venv/bin/python templates/audit_and_split.py
+    .venv/bin/python src/audit_and_split.py
 
 Skrypt nie trenuje i nie uruchamia żadnego modelu. Zbiór test jest tylko
 opisywany statystycznie (rozkład klas, długości, duplikaty), co jest
