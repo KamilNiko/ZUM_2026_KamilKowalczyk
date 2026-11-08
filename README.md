@@ -98,32 +98,69 @@ Uzupełniaj sekcje w zadaniach podanych w nawiasach. Zastępuj teksty w nawiasac
 
 ## Informacje ogólne
 
-* Tytuł: [tytuł projektu]
+* Tytuł: Klasyfikacja wydźwięku polskich recenzji (PolEmo 2.0): TF-IDF a zamrożony enkoder HerBERT
 * Autor: Kamil Kowalczyk
-* Modalność: [tekst, obraz, audio albo dane multimodalne]
-* Problem klasyfikacji: [co jest klasą, ile jest klas]
+* Modalność: tekst (język polski)
+* Problem klasyfikacji: wydźwięk całej recenzji, 4 klasy: `minus`, `plus`, `amb`, `zero`
 
 ## Problem i pytanie eksperymentalne (Zadanie 1)
 
-[Jaki problem rozwiązujesz i co dokładnie chcesz sprawdzić.]
+* **Problem klasyfikacji:** nadzorowana klasyfikacja jednolabelowa tekstu w języku polskim. Każdą recenzję przypisujemy do dokładnie jednej z 4 klas wydźwięku: `minus` (negatywna), `plus` (pozytywna), `amb` (ambiwalentna) albo `zero` (neutralna).
+* **Pytanie eksperymentalne:** czy polski model pretrenowany HerBERT (`allegro/herbert-base-cased`) z zamrożonym enkoderem uzyska wyższe Macro-F1 na zbiorze validation niż klasyczny baseline TF-IDF z regresją logistyczną? Czy największa przewaga HerBERTa ujawni się w najtrudniejszej klasie `amb` (recenzje ambiwalentne)?
+
+### Jednostka generalizacji
+
+* **Jednostka generalizacji:** pojedyncza recenzja.
+* **Uzasadnienie i przyszłe dane:** model ma działać na nowych, niezależnych recenzjach konsumenckich w języku polskim z tych samych domen (medycyna, hotele, produkty, uczelnie).
+* **Ograniczenie jednostki:** PolEmo 2.0 nie zawiera identyfikatorów autorów recenzji ani ocenianych obiektów (np. konkretnego hotelu lub lekarza). Z tego powodu podział grupowy według autorów nie jest możliwy. Klasyfikacja odbywa się na poziomie pojedynczego dokumentu, a brak identyfikatorów autorów opisuję jako ograniczenie projektu.
 
 ## Dane i licencja (Zadanie 1)
 
-[Źródło i link, licencja, sposób pobrania, liczba przykładów, lista klas, sposób oznaczenia etykiet, znane ograniczenia.]
+* **Źródło danych:** zbiór **PolEmo 2.0** (`clarin-pl/polemo2-official`, wariant `all_text`) udostępniony przez CLARIN-PL na platformie [Hugging Face](https://huggingface.co/datasets/clarin-pl/polemo2-official). Oryginał: [repozytorium CLARIN-PL](https://clarin-pl.eu/dspace/handle/11321/710).
+* **Publikacja:** Kocoń J., Miłkowski P., Zaśko-Zielińska M. (2019). *Multi-Level Sentiment Analysis of PolEmo 2.0: Extended Corpus of Multi-Domain Consumer Reviews.* CoNLL 2019, s. 980–991. DOI: [10.18653/v1/K19-1092](https://doi.org/10.18653/v1/K19-1092).
+* **Sposób pobrania:** dane pobiera automatycznie skrypt [`templates/audit_and_split.py`](templates/audit_and_split.py). Oficjalny skrypt ładujący zbioru nie działa z biblioteką `datasets` w wersji 4 i nowszej, dlatego używam automatycznej konwersji do Parquet (`refs/convert/parquet`) przypiętej do commita `b2ced85046c77edf649d6ac991cc0ef5b8bca13c`.
+* **Sposób oznaczenia etykiet:** ręczna anotacja ekspercka na poziomie całych dokumentów (oraz zdań) w schemacie 2+1: dwóch anotatorów i superanotator rozstrzygający niezgodności. Autorzy raportują zgodność (Positive Specific Agreement) 0,91 dla tekstów.
+* **Licencja:** CC BY-NC-SA 4.0 (użycie niekomercyjne, z uznaniem autorstwa, na tych samych warunkach). Karta zbioru jest niespójna: treść podaje CC BY-NC-SA 4.0, metadane `cc-by-sa-4.0`, a skrypt ładujący `CC-BY-4.0`. Przyjmuję najbardziej restrykcyjną z nich. Projekt ma charakter edukacyjny i niekomercyjny.
+* **Ochrona prywatności:** teksty recenzji zawierają wzmianki o osobach trzecich (np. nazwiska lekarzy, profesorów). Dlatego surowe teksty recenzji nie są commitowane do publicznego repozytorium GitHub. Katalog `splits/` zawiera wyłącznie pliki z indeksami: `train_ids.csv`, `validation_ids.csv`, `test_ids.csv`.
+* **Znane ograniczenia:** brak metadanych o autorze, ocenianym obiekcie i dacie. Około 85% recenzji pochodzi z domen medycyny i hoteli. Tekst jest wstępnie stokenizowany (spacje przed interpunkcją).
 
 ## Protokół (Zadanie 1)
 
-* Jednostka generalizacji: [na przykład recenzja, pacjent, mówca, nagranie źródłowe]
-* Podział: [metoda i uzasadnienie]
-* Metryka główna i pomocnicze: [z uzasadnieniem]
-* Seed: [wartość]
-* Final test: zamrożony w commicie z tagiem `task-1`, identyfikatory w `splits/`. Jeśli podział był później poprawiany, podaj commit poprawionej wersji i opisz zmianę w dzienniku zmian.
+### Audyt danych
 
-| Zbiór | Liczba przykładów | Liczba niezależnych jednostek |
-|---|---|---|
-| train | | |
-| validation | | |
-| final test | | |
+Łączny rozmiar zbioru wynosi **8 216 przykładów**. Audyt wykonuje skrypt `templates/audit_and_split.py`.
+
+| Zbiór | Liczba przykładów | Liczba niezależnych jednostek | Udział % | `minus` % | `plus` % | `amb` % | `zero` % |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **train** | 6 573 | 6 573 | 80,0% | 37,6% | 27,7% | 19,9% | 14,8% |
+| **validation** | 823 | 823 | 10,0% | 36,9% | 28,7% | 18,8% | 15,6% |
+| **final test** | 820 | 820 | 10,0% | 41,3% | 27,7% | 16,6% | 14,4% |
+
+* **Braki danych:** brakujące wartości (`text` / `label`): 0. Puste teksty po usunięciu spacji: 0.
+* **Statystyki długości tekstu:** średnia długość recenzji wynosi 133,5 słowa w `train`, 130,7 w `validation` i 128,8 w `test`. Mediana dla całego zbioru wynosi 119 słów, minimum 1 słowo, maksimum 987 słów.
+* **Limit długości HerBERTa:** model HerBERT ma limit 512 tokenów. Teksty przekraczające ten limit będą przycinane (*truncation*). Udział przyciętych tekstów zmierzę w Zadaniu 3.
+* **Audyt duplikatów:**
+    * **Dokładne duplikaty** (*exact duplicates*): 0 wierszy w całym zbiorze.
+    * **Prawie-duplikaty** (*near-duplicates*, po normalizacji: małe litery, bez interpunkcji i nadmiarowych spacji): 1 grupa (2 przykłady) przekraczająca granicę podziału między `train` (id 3179) a `test` (id 160). Oba przykłady mają tę samą etykietę `zero`.
+
+**Liczba niezależnych jednostek i stabilność estymaty.** Jednostką jest recenzja, więc liczba jednostek równa się liczbie przykładów. Recenzje tego samego autora lub obiektu nie są jednak w pełni niezależne, a zbiór nie pozwala tego sprawdzić. Faktyczna liczba niezależnych jednostek może więc być mniejsza. Validation i test mają po około 820 recenzji, ale klasy `amb` i `zero` liczą w nich tylko 118–155 przykładów. F1 tych klas, a przez to Macro-F1, może się więc wahać o kilka punktów procentowych. Wyniki na validation będę raportować z przedziałami ufności z bootstrapu, a małych różnic między modelami nie będę interpretować jako przewagi.
+
+### Analiza wycieku danych (Data Leakage)
+
+1. **Prawie-duplikaty:** pojedyncza para prawie-duplikatów przekraczająca granicę `train`–`test` została odnotowana w audycie. Oficjalny podział PolEmo 2.0 jest zamrożony, więc nie modyfikuję ręcznie zbiorów i traktuję tę parę jako zmierzone ograniczenie zbioru źródłowego. Dotyczy 1 z 820 przykładów testowych (0,12%).
+2. **Ten sam autor lub obiekt po obu stronach podziału:** recenzje tego samego hotelu, lekarza albo produktu mogą trafić do różnych zbiorów, a model może zapamiętać nazwy własne skorelowane z wydźwiękiem. Bez metadanych nie da się temu zapobiec. Opisuję to jako ograniczenie, a w analizie błędów sprawdzę, czy model opiera się na nazwach własnych.
+3. **Brak przecieku TF-IDF:** transformacja TF-IDF oraz dopasowanie słownika i wag IDF (`fit`) będą wykonywane wyłącznie na zbiorze treningowym, w ramach `Pipeline` scikit-learn.
+4. **Brak przecieku preprocessingu:** standaryzacja cech (np. `StandardScaler` na embeddingach HerBERTa) i czyszczenie danych będą dopasowywane wyłącznie na statystykach ze zbioru treningowego.
+5. **Zamrożenie zbioru testowego:** zbiór final test (`test_ids.csv`) zostaje zamrożony na etapie Zadania 1 i nie będzie używany do trenowania, selekcji modeli ani strojenia hiperparametrów. Do tego służy wyłącznie validation.
+6. **Wiedza z pretreningu:** HerBERT był trenowany na dużych polskich korpusach internetowych, które mogły zawierać te same recenzje. Tego nie da się wykluczyć, więc opisuję to jako ograniczenie porównania.
+
+### Podział, metryki i losowość
+
+* **Podział:** oficjalny podział autorów zbioru (train / validation / test, ok. 80/10/10%), bez zmian. Dzięki temu wyniki są porównywalne z literaturą. Rozkład klas w zbiorach jest zbliżony, a podział grupowy nie jest możliwy z powodu braku identyfikatorów autorów.
+* **Metryka główna:** **Macro-F1**. Uwzględnia nierównowagę klas i daje równą wagę każdej klasie, w tym najtrudniejszej klasie `amb`. Jest też metryką zalecaną w karcie zbioru.
+* **Metryki pomocnicze:** accuracy, F1 dla poszczególnych klas oraz macierz pomyłek (*confusion matrix*).
+* **Ziarno losowości (seed):** `RANDOM_STATE = 2026`. Sam podział jest oficjalny i nie zawiera losowości. Seed stosuję we wszystkich modelach i wszędzie, gdzie występuje losowość (losowanie przykładów, bootstrap, `numpy`, `torch`).
+* **Final test:** zamrożony w commicie z tagiem `task-1`, identyfikatory w `splits/` (kolumna `id` = numer wiersza w oficjalnym zbiorze). Jeśli podział był później poprawiany, podaj commit poprawionej wersji i opisz zmianę w dzienniku zmian.
 
 ## Wyniki (Zadania 2 do 5)
 
@@ -158,7 +195,7 @@ Pełny zapis jest w `final_system.md`. [Krótkie uzasadnienie wyboru na podstawi
 
 | Data | Zadanie | Co zmieniono i dlaczego |
 |---|---|---|
-| | | |
+| 2026-11-08 | 1 | Audyt danych, zapis oficjalnego podziału w `splits/`, uzupełnienie sekcji problemu, danych i protokołu. |
 
 ## Licencja projektu
 
