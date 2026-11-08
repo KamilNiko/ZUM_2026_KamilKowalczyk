@@ -196,7 +196,7 @@ Pełny zapis jest w `final_system.md`. [Krótkie uzasadnienie wyboru na podstawi
 | Data | Zadanie | Co zmieniono i dlaczego |
 |---|---|---|
 | 2026-11-08 | 1 | Audyt danych, zapis oficjalnego podziału w `splits/`, uzupełnienie sekcji problemu, danych i protokołu. |
-| 2026-11-08 | 1 | Przeniesienie skryptu audytu z `templates/` do `src/` (zgodnie z przeznaczeniem katalogów). Podział danych bez zmian. Tag `task-1` wskazuje commit `238a385` sprzed przeniesienia. |
+| 2026-11-08 | 1 | Przeniesienie skryptu audytu z `templates/` do `src/` (zgodnie z przeznaczeniem katalogów). Podział danych bez zmian. Tag `task-1` wskazuje commit `ae05713` sprzed przeniesienia. |
 
 ## Licencja projektu
 
