@@ -26,3 +26,6 @@ venv/
 wandb/
 mlruns/
 lightning_logs/
+
+# Lokalne wyniki poza strukturą repozytorium
+/Results_task_1
